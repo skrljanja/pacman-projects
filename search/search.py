@@ -133,14 +133,40 @@ def depth_first_search(problem):
     print("Start's successors:", problem.get_successors(problem.get_start_state()))
     """
     "*** YOUR CODE HERE ***"
-    util.raise_not_defined()
-
+    frontier = util.Stack()
+    explored = set()
+    start_node = SearchNode(None, (problem.get_start_state(), None, 0))
+    frontier.push(start_node)
+    while not frontier.is_empty():
+        current_node = frontier.pop()
+        if problem.is_goal_state(current_node.state):
+            return current_node.get_path()
+        if current_node.state not in explored:
+            explored.add(current_node.state)
+            for successor in problem.get_successors(current_node.state):
+                child_node = SearchNode(current_node, successor)
+                if child_node.state not in explored:
+                    frontier.push(child_node)
 
 
 def breadth_first_search(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raise_not_defined()
+    frontier = util.Queue()
+    explored = set()
+    start = SearchNode(None, (problem.get_start_state(), 0, None))
+    frontier.push(start)
+    while not frontier.is_empty(): 
+        current = frontier.pop()
+        if (problem.is_goal_state(current)):
+            return current.get_path()
+        if (current.state not in explored):
+            explored.add(current.state)
+            for child in problem.get_sucessors(current.state):
+                childNode = SearchNode(node, child)
+                if (child.state not in explored):
+                    frontier.push(child)
+
 
 def uniform_cost_search(problem):
     """Search the node of least total cost first."""
