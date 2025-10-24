@@ -133,7 +133,7 @@ def depth_first_search(problem):
     print("Start's successors:", problem.get_successors(problem.get_start_state()))
     """
     "*** YOUR CODE HERE ***"
-    frontier = util.Stack()
+    frontier = util.Stack() # The frontier is a stack for DFS
     explored = set()
     start_node = SearchNode(None, (problem.get_start_state(), None, 0))
     frontier.push(start_node)
@@ -142,8 +142,10 @@ def depth_first_search(problem):
         current_node = frontier.pop()
         if current_node.state not in explored:
             explored.add(current_node.state)
-            if problem.is_goal_state(current_node.state):
+            if problem.is_goal_state(current_node.state): # If we have reached the goal state we are done and we return the path
                 return current_node.get_path()
+            # loop through the successors and add them to the frontier
+            # NOTE: we are implementing tree seach, so we do not need to check if the successor is already in the explored set or in the frontier
             for successor in (problem.get_successors(current_node.state)):
                 child_node = SearchNode(current_node, successor)
                 frontier.push(child_node)
@@ -159,8 +161,8 @@ def breadth_first_search(problem):
     frontier.push(start)
     while not frontier.is_empty(): 
         current = frontier.pop()
-        if (problem.is_goal_state(current.state)):
-            return current.get_path()
+        if (problem.is_goal_state(current.state)): # If we have reached the goal state we are done and we return the path
+            return current.get_path() 
         if (current.state not in explored):
             explored.add(current.state)
             for child in problem.get_successors(current.state):
@@ -186,6 +188,9 @@ def uniform_cost_search(problem):
                 for child in problem.get_successors(current.state):
                     child_node = SearchNode(current, child)
                     if child_node.state not in explored:
+                        # The update method will add the child to the frontier if not alread in it
+                        # If this state is already in the queue it will update its priority with 
+                        # the new cost if the new cost is lower
                         frontier.update(child_node, child_node.cost)
 
 
@@ -200,7 +205,7 @@ def a_star_search(problem, heuristic=null_heuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
     frontier = util.PriorityQueue()
-    explored = set()
+    explored = set() # explored set to keep track of visited states
     start = SearchNode(None, (problem.get_start_state(), None, 0))
     frontier.push(start, 0)
     while not frontier.is_empty(): 
@@ -209,9 +214,13 @@ def a_star_search(problem, heuristic=null_heuristic):
                 return current.get_path()
             if (current.state not in explored):
                 explored.add(current.state)
-                for child in problem.get_successors(current.state):
+                for child in problem.get_successors(current.state): # loop through successors
                     child_node = SearchNode(current, child)
                     if child_node.state not in explored:
+                        # The update method will add the child to the frontier if not alread in it
+                        # If this state is already in the queue it will update its priority with 
+                        # the new cost if the new cost is lower
+                        # NOTE: the priority here is the full cost of getting to the child node plus the heuristic estimate
                         frontier.update(child_node, child_node.cost + heuristic(child_node.state, problem))
 # Abbreviations
 bfs = breadth_first_search
