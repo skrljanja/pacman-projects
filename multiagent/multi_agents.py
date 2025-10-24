@@ -75,17 +75,19 @@ class ReflexAgent(Agent):
         new_scared_times = [ghostState.scared_timer for ghostState in new_ghost_states]
         old_scared_times = [ghostState.scared_timer for ghostState in new_ghost_states]
         
-        print(new_ghost_states[0].get_position())
         "*** YOUR CODE HERE ***"
         score = successor_game_state.get_score()
+        
         closest_ghost = min([manhattan_distance(new_pos, ghost.get_position()) for ghost in new_ghost_states])
-        for ghost in new_ghost_states:
-            if manhattan_distance(new_pos, ghost.get_position()) < manhattan_distance(old_pos, ghost.get_position()) and manhattan_distance(new_pos, ghost.get_position()) < 3:
-                score -= 3 - manhattan_distance(new_pos, ghost.get_position())
+        if closest_ghost <= 1 and new_scared_times[0] == 0:
+            score -= 500
+        
         closest_new_food_distance = min([manhattan_distance(new_pos, food) for food in new_food.as_list()]) if len(new_food.as_list()) > 0 else 0
         closest_old_food_distance = min([manhattan_distance(old_pos, food) for food in new_food.as_list()]) if len(new_food.as_list()) > 0 else 0
+        
         if closest_new_food_distance < closest_old_food_distance:
                 score += 2
+        
         for i in range(len(new_scared_times)):
             ## we only want to scare the ghosts if they are close
             if (new_scared_times[i] > old_scared_times[i] and closest_ghost < 3):

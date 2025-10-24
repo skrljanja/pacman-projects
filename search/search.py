@@ -134,19 +134,22 @@ def depth_first_search(problem):
     """
     "*** YOUR CODE HERE ***"
     frontier = util.Stack()
+    frontier_set = set()
     explored = set()
     start_node = SearchNode(None, (problem.get_start_state(), None, 0))
     frontier.push(start_node)
+
     while not frontier.is_empty():
         current_node = frontier.pop()
         if problem.is_goal_state(current_node.state):
             return current_node.get_path()
         if current_node.state not in explored:
             explored.add(current_node.state)
-            for successor in problem.get_successors(current_node.state):
+            for successor in (problem.get_successors(current_node.state)):
                 child_node = SearchNode(current_node, successor)
-                if child_node.state not in explored:
+                if child_node.state not in explored and child_node.state not in frontier_set:
                     frontier.push(child_node)
+                    frontier_set.add(child_node.state)
 
 
 def breadth_first_search(problem):
@@ -154,6 +157,7 @@ def breadth_first_search(problem):
     "*** YOUR CODE HERE ***"
     frontier = util.Queue()
     explored = set()
+    in_frontier = set()
     start = SearchNode(None, (problem.get_start_state(), None, 0))
     frontier.push(start)
     while not frontier.is_empty(): 
@@ -164,8 +168,9 @@ def breadth_first_search(problem):
             explored.add(current.state)
             for child in problem.get_successors(current.state):
                 child_node = SearchNode(current, child)
-                if (child_node.state not in explored):
+                if (child_node.state not in explored and child_node.state not in in_frontier):
                     frontier.push(child_node)
+                    in_frontier.add(child_node.state)
 
 
 def uniform_cost_search(problem):
@@ -174,7 +179,7 @@ def uniform_cost_search(problem):
     frontier = util.PriorityQueue()
     explored = set()
     start = SearchNode(None, (problem.get_start_state(), None, 0))
-    frontier.push(start, 1)
+    frontier.push(start, 0)
     while not frontier.is_empty(): 
             current = frontier.pop()
             if (problem.is_goal_state(current.state)):
@@ -183,8 +188,8 @@ def uniform_cost_search(problem):
                 explored.add(current.state)
                 for child in problem.get_successors(current.state):
                     child_node = SearchNode(current, child)
-                    if (child_node.state not in explored):
-                        frontier.push(child_node, current.cost + 1)
+                    if child_node.state not in explored:
+                        frontier.update(child_node, child_node.cost)
 
 
 def null_heuristic(state, problem=None):
@@ -200,7 +205,7 @@ def a_star_search(problem, heuristic=null_heuristic):
     frontier = util.PriorityQueue()
     explored = set()
     start = SearchNode(None, (problem.get_start_state(), None, 0))
-    frontier.push(start, 1)
+    frontier.push(start, 0)
     while not frontier.is_empty(): 
             current = frontier.pop()
             if (problem.is_goal_state(current.state)):
@@ -209,9 +214,8 @@ def a_star_search(problem, heuristic=null_heuristic):
                 explored.add(current.state)
                 for child in problem.get_successors(current.state):
                     child_node = SearchNode(current, child)
-                    if (child_node.state not in explored):
-                        frontier.push(child_node, current.cost + heuristic(child_node.state, problem))
-
+                    if child_node.state not in explored:
+                        frontier.update(child_node, child_node.cost + heuristic(child_node.state, problem))
 # Abbreviations
 bfs = breadth_first_search
 dfs = depth_first_search
