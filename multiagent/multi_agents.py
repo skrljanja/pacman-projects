@@ -77,14 +77,16 @@ class ReflexAgent(Agent):
         
         "*** YOUR CODE HERE ***"
         score = successor_game_state.get_score()
-        
+
+        # Eliminate the possibility of dying in the next move.  
         closest_ghost = min([manhattan_distance(new_pos, ghost.get_position()) for ghost in new_ghost_states])
         if closest_ghost <= 1 and new_scared_times[0] == 0:
             score -= 500
         
         closest_new_food_distance = min([manhattan_distance(new_pos, food) for food in new_food.as_list()]) if len(new_food.as_list()) > 0 else 0
         closest_old_food_distance = min([manhattan_distance(old_pos, food) for food in new_food.as_list()]) if len(new_food.as_list()) > 0 else 0
-        
+
+        # Move towards directions with more food than before. 
         if closest_new_food_distance < closest_old_food_distance:
                 score += 2
         
@@ -155,27 +157,33 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
+        # We follow the structure provided in the slides. 
+        
         
         num_agents = game_state.get_num_agents()
 
         if game_state.is_win() or game_state.is_lose():
             return self.evaluation_function(game_state)
-        
+
         def max_agent(state, depth):
             if state.is_win() or state.is_lose() or depth > self.depth:
                 return (self.evaluation_function(state), None)
             value = -10e+100
+            
+            #max_agent should pick the maximum-reward action. 
             for action in state.get_legal_actions(0):
                 new_value = min_agent(state.generate_successor(0, action), depth, 1)
                 if (value < new_value):
                     value = new_value
-                    a = action
+                    a = action #we are interested in the maximum-reward action.
             return (value, a)
 
         def min_agent(state, depth, agent_index):
             if state.is_win() or state.is_lose() or depth > self.depth:
                 return self.evaluation_function(state)
             value = 10e+100
+
+            #max_agent picks the minimum_reward action, among all possibilities from all combinations of the ghosts action. 
             for action in state.get_legal_actions(agent_index):
                 if agent_index >= num_agents - 1:
                     value = min(value, max_agent(state.generate_successor(agent_index, action), depth + 1)[0])
@@ -196,8 +204,11 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluation_function
         """
         "*** YOUR CODE HERE ***"
+
+        # We use the image provided in the Readme.md folder. 
+        # For the max_agent, we prune if the state values are bigger than beta. 
+        # We update alpha. 
         num_agents = game_state.get_num_agents()
-        
         def max_agent(state, depth, alpha, beta):
             if state.is_win() or state.is_lose() or depth >= self.depth:
                 return (self.evaluation_function(state), None)
@@ -212,6 +223,9 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 alpha = max(value, alpha)
             return (value, a)
 
+        # For the min_agent, we prune if the sstate values are smaller than alpha. 
+        # We update the value of beta. 
+        
         def min_agent(state, depth, agent_index, alpha, beta):
             if state.is_win() or state.is_lose():
                 return self.evaluation_function(state), None
