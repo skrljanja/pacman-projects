@@ -155,7 +155,35 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raise_not_defined()
+        
+        num_agents = game_state.get_num_agents()
+
+        if game_state.is_win() or game_state.is_lose():
+            return self.evaluation_function(game_state)
+        
+        def max_agent(state, depth):
+            if state.is_win() or state.is_lose() or depth > self.depth:
+                return (self.evaluation_function(state), None)
+            value = -10e+100
+            for action in state.get_legal_actions(0):
+                new_value = min_agent(state.generate_successor(0, action), depth, 1)
+                if (value < new_value):
+                    value = new_value
+                    a = action
+            return (value, a)
+
+        def min_agent(state, depth, agent_index):
+            if state.is_win() or state.is_lose() or depth > self.depth:
+                return self.evaluation_function(state)
+            value = 10e+100
+            for action in state.get_legal_actions(agent_index):
+                if agent_index >= num_agents - 1:
+                    value = min(value, max_agent(state.generate_successor(agent_index, action), depth + 1)[0])
+                else:
+                    value = min(value, min_agent(state.generate_successor(agent_index, action), depth, agent_index + 1))
+            return value
+        
+        return(max_agent(game_state, 1)[1])
     
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
@@ -168,7 +196,41 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluation_function
         """
         "*** YOUR CODE HERE ***"
-        util.raise_not_defined()
+        num_agents = game_state.get_num_agents()
+        
+        def max_agent(state, depth, alpha, beta):
+            if state.is_win() or state.is_lose() or depth >= self.depth:
+                return (self.evaluation_function(state), None)
+            value = -10e+100
+            for action in state.get_legal_actions(0):
+                new_value = min_agent(state.generate_successor(0, action), depth, 1,  alpha, beta)[0]
+                if (value < new_value):
+                    value = new_value
+                    a = action
+                if (value > beta):
+                    return (value, a)
+                alpha = max(value, alpha)
+            return (value, a)
+
+        def min_agent(state, depth, agent_index, alpha, beta):
+            if state.is_win() or state.is_lose():
+                return self.evaluation_function(state), None
+            value = 10e+100
+            a = None
+            for action in state.get_legal_actions(agent_index):
+                if agent_index >= num_agents - 1:
+                    new_value = max_agent(state.generate_successor(agent_index, action), depth + 1, alpha, beta)[0]
+                else:
+                    new_value = min_agent(state.generate_successor(agent_index, action), depth, agent_index + 1, alpha, beta)[0]
+                if (new_value < value):
+                    value = new_value
+                    a = action
+                if (value < alpha):
+                    return value, a
+                beta = min(value, beta)
+            return value, a
+        
+        return(max_agent(game_state, 0, -10e+10, 10e+10)[1])
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
