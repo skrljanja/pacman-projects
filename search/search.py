@@ -134,22 +134,19 @@ def depth_first_search(problem):
     """
     "*** YOUR CODE HERE ***"
     frontier = util.Stack()
-    frontier_set = set()
     explored = set()
     start_node = SearchNode(None, (problem.get_start_state(), None, 0))
     frontier.push(start_node)
 
     while not frontier.is_empty():
         current_node = frontier.pop()
-        if problem.is_goal_state(current_node.state):
-            return current_node.get_path()
         if current_node.state not in explored:
             explored.add(current_node.state)
+            if problem.is_goal_state(current_node.state):
+                return current_node.get_path()
             for successor in (problem.get_successors(current_node.state)):
                 child_node = SearchNode(current_node, successor)
-                if child_node.state not in explored and child_node.state not in frontier_set:
-                    frontier.push(child_node)
-                    frontier_set.add(child_node.state)
+                frontier.push(child_node)
 
 
 def breadth_first_search(problem):
